@@ -211,6 +211,11 @@ class Decoder(srd.Decoder):
                 request['type'] = 'SETUP OUT'
                 self.handle_request(request['wLength'] == 0, 0)
 
+        # CONTROL, STATUS or DATA stage fail
+        elif request['type'] in ('SETUP IN', 'SETUP OUT') and self.handshake == 'STALL':
+            request['es'] = self.es_transaction
+            self.handle_request(0, 1)
+
         # CONTROL, DATA stage
         elif request['type'] == 'SETUP IN' and self.transaction_type == 'IN':
             request['data'] += self.transaction_data
